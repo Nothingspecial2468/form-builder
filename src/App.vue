@@ -1,5 +1,6 @@
 <script setup>
 import { useFormBuilder } from './composables/useFormBuilder';
+import FieldEditor  from './components/FieldEditor.vue';
 
 const{
   fields,
@@ -13,54 +14,60 @@ const{
 </script>
 
 <template>
-  <div>
+  <div class="container">
     <h1>Form Builder</h1>
 
-    <div v-if="fields.length === 0" style="margin-top: 16px; padding: 15px; border: 1px dashed #aaa;">
+    <div v-if="fields.length === 0" class="empty">
         <p>No fields yet!</p>
         <p>Click "Add Field" to start building your form.</p>
     </div>
 
-    <div v-else>
-        <div v-for="field in fields"
-        :key="field.id"
-        style="border: 1px solid #ccc; padding: 11px; margin: 10px 0;">
-        <!--existing field UI-->
-        </div>
-    </div>
-
     <button @click="addField">Add Field</button>
 
-    <div v-for="field in fields" :key="field.id" style="border: 1px solid black; padding: 10px; margin: 10px 0;">
-      <input type="text"
-      :value="field.label"
-      @input="updateField(field.id, {label: $event.target.value})"
-      placeholder="Field Label">
-
-      <select :value="field.type"
-      @change="updateField(field.id, {type: $event.target.value})">
-
-        <option value="text">Text</option>
-        <option value="number">Number</option>
-        <option value="select">Select</option>
-        <option value="checkbox">Checkbox</option>
-
-      </select>
-
-      <label>
-        <input type="checkbox"
-        :checked="field.required"
-        @change="updateField(field.id, {required: $event.target.checked})">
-        Required
-      </label>
-
-      <pre>{{ fields }}</pre>
-
-      <button @click="removeField(field.id)">Remove</button>
-
-    </div>
+    <FieldEditor v-for="field in fields"
+     :key="field.id"
+      :field="field"
+       @update-field="updateField"
+        @remove-field="removeField(field.id)">
+      </FieldEditor>
   </div>
 </template>
 
 <style scoped>
+.container{
+  margin: 0 auto;
+  padding: 10px;
+  max-width: 600px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+h1{
+  font-size: 30px;
+  font-weight: 600;
+  margin: 10px 0;
+}
+
+button{
+  margin: 10px 0;
+  padding: 8px 16px;
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: 3px;
+  border: 1px solid #05101c;
+}
+
+button:hover{
+  background: #816d6d;
+  color: #05101c;
+}
+
+.empty{
+  text-align: center;
+  padding: 4px 8px;
+  border: 1px solid #05101c;
+  border-radius: 3px;
+  margin: 10px 0;
+}
 </style>
