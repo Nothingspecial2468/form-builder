@@ -1,6 +1,7 @@
 <script setup>
 import { useFormBuilder } from './composables/useFormBuilder';
 import FieldEditor  from './components/FieldEditor.vue';
+import FieldPreview from './components/FieldPreview.vue';
 
 const{
   fields,
@@ -30,6 +31,15 @@ const{
        @update-field="updateField"
         @remove-field="removeField(field.id)">
       </FieldEditor>
+
+    <h2>Form Preview</h2>
+    <div v-if="fields.length">
+      <FieldPreview v-for="field in fields"
+      :key="field.id"
+      :field="field"
+      @update-field="value=> updateField(field.id, {value})">
+      </FieldPreview>
+    </div>
   </div>
 </template>
 

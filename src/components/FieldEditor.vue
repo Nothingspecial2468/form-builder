@@ -1,4 +1,6 @@
 <script setup>
+import OptionsEditor from './OptionsEditor.vue';
+
 const props= defineProps({
     field: {
         type: Object,
@@ -11,6 +13,7 @@ const emit = defineEmits(['update-field', 'remove-field']);
 function handleInput(key, value){
     emit('update-field', props.field.id, {[key]: value})
 }
+
 </script>
 
 <template>
@@ -34,6 +37,11 @@ function handleInput(key, value){
         </label>
 
         <button @click="$emit('remove-field', field.id)">Remove</button>
+
+        <OptionsEditor v-if="field.type === 'select'"
+         :options="field.options"
+          @update-options="newOptions => handleInput('options', newOptions)">
+        </OptionsEditor>
     </div>
 </template>
 
