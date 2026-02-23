@@ -6,12 +6,19 @@ import FieldPreview from './components/FieldPreview.vue';
 const{
   fields,
   addField,
+  addCondition,
+  evaluateCondition,
+  // visibleFields,
+  // validateForm,
   removeField,
   updateField,
-  isFormValid,
-  resetForm
+  // isFormValid,
+  // resetForm
 } = useFormBuilder();
 
+const A = 'whatever'
+const conditionValue = 'hello'
+console.log(A === conditionValue)
 </script>
 
 <template>
@@ -28,18 +35,20 @@ const{
     <FieldEditor v-for="field in fields"
      :key="field.id"
       :field="field"
+      :all-fields="fields"
        @update-field="updateField"
-        @remove-field="removeField(field.id)">
+        @remove-field="removeField"
+        @add-condition="addCondition"
+        >
       </FieldEditor>
 
     <h2>Form Preview</h2>
-    <div v-if="fields.length">
-      <FieldPreview v-for="field in fields"
-      :key="field.id"
-      :field="field"
-      @update-field="value=> updateField(field.id, {value})">
-      </FieldPreview>
-    </div>
+    <FieldPreview :fields="fields"
+      :evaluate-condition="evaluateCondition"
+        @update-field="(id, value)=> updateField(id, {value})">
+    </FieldPreview>
+
+    <pre>{{ fields }}</pre>
   </div>
 </template>
 
