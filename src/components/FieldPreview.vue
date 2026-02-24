@@ -79,6 +79,7 @@ const emit = defineEmits(['update-field'])
     margin: 10px 0;
     display: flex;
     flex-direction: column;
+    align-items:flex-start;
     gap: 6px;
 }
 
@@ -87,4 +88,10 @@ label{
     display: block;
     margin-bottom: 4px;
 }
+
+input, select{
+    padding: 6px 10px;
+    border: 1px solid #05101c;
+}
+
 </style>

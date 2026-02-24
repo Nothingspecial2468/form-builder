@@ -30,7 +30,7 @@ console.log(A === conditionValue)
         <p>Click "Add Field" to start building your form.</p>
     </div>
 
-    <button @click="addField">Add Field</button>
+    <button class="primary-btn" @click="addField">Add Field</button>
 
     <FieldEditor v-for="field in fields"
      :key="field.id"
@@ -48,18 +48,20 @@ console.log(A === conditionValue)
         @update-field="(id, value)=> updateField(id, {value})">
     </FieldPreview>
 
-    <pre>{{ fields }}</pre>
   </div>
 </template>
 
 <style scoped>
 .container{
-  margin: 0 auto;
-  padding: 10px;
+  margin: 30px auto;
+  padding: 13px;
+  background: #816d6d;
   max-width: 600px;
   display: flex;
+  justify-content: center;
   align-items: center;
   flex-direction: column;
+  border-radius: 8px;
 }
 
 h1{
@@ -78,15 +80,21 @@ button{
 }
 
 button:hover{
-  background: #816d6d;
+  background: #e6dcdc;
   color: #05101c;
+}
+
+.primary-btn{
+  background: #05101c;
+  color: #fff;
 }
 
 .empty{
   text-align: center;
   padding: 4px 8px;
   border: 1px solid #05101c;
-  border-radius: 3px;
+  border-radius: 7px;
   margin: 10px 0;
+  font-size: 18px;
 }
 </style>

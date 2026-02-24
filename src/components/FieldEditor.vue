@@ -43,13 +43,23 @@ function updateCondition(key, value){
             <option value="checkbox">Checkbox</option>
         </select>
 
-        <button @click="$emit('add-condition', field.id)">
+        
+        <label>
+            <input type="checkbox"
+            :checked="field.required"
+            @change="update('required', $event.target.checked)"
+        >
+            Required
+        </label>
+
+        <button class="secondary-btn"  @click="$emit('add-condition', field.id)">
             Add Condition
         </button>
 
-        <button @click="$emit('remove-field', field.id)">Remove</button>
+        <button class="remove-btn"  @click="$emit('remove-field', field.id)">Remove</button>
 
-        <div v-if="field.condition">
+        <div v-if="field.condition" class="condition-section">
+            <h3>Visibility Rules</h3>
             <select :value="field.condition.targetFieldId" 
             @change="updateCondition('targetFieldId', $event.target.value)">
 
@@ -67,14 +77,6 @@ function updateCondition(key, value){
             @input="updateCondition('value', $event.target.value)">
         </div>
 
-        <label>
-            <input type="checkbox"
-            :checked="field.required"
-            @change="update('required', $event.target.checked)"
-        >
-            Required
-        </label>
-
         <OptionsEditor v-if="field.type === 'select'"
          :options="field.options"
           @update-options="newOptions => update('options', newOptions)">
@@ -89,8 +91,11 @@ function updateCondition(key, value){
     margin: 10px 0;
     display: flex;
     align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 13px;
     border-radius: 4px;
+    box-shadow: 2px 2px 5px rgba(0,0, 0, 0.6);
 }
 
 input , select{
@@ -99,5 +104,39 @@ input , select{
     border: 1px solid #05101c;
     border-radius: 4px;
     flex-grow: 1;
+    gap: 10px;
+}
+
+.condition-section{
+    padding: 12px;
+    margin-top: 11px;
+    background: #f0f0f0;
+    text-align: center;
+    border: 1px solid #0e0202;
+    border-radius: 4px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+}
+
+button{
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 3px;
+    border: 1px solid #05101c;
+}
+
+button:hover{
+    background: #e6dcdc;
+    color: #05101c;
+}
+
+.secondary-btn{
+    background: #f0f0f0;
+    color: #333;
+}
+
+.remove-btn{
+    background: #dc3545;
+    color: #fff;
 }
 </style>
