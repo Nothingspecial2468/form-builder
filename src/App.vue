@@ -8,17 +8,9 @@ const{
   addField,
   addCondition,
   evaluateCondition,
-  // visibleFields,
-  // validateForm,
   removeField,
   updateField,
-  // isFormValid,
-  // resetForm
 } = useFormBuilder();
-
-const A = 'whatever'
-const conditionValue = 'hello'
-console.log(A === conditionValue)
 </script>
 
 <template>

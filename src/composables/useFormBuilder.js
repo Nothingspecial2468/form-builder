@@ -1,4 +1,4 @@
-import {ref , computed} from 'vue';
+import {ref , computed, watch, onMounted} from 'vue';
 
 export function useFormBuilder(){
     const fields = ref([]);
@@ -16,6 +16,19 @@ export function useFormBuilder(){
 
         fields.value.push(newField);
     }
+
+    watch(fields, (newValue)=>{
+        localStorage.setItem("formBuilderState", JSON.stringify(newValue))
+        }, {deep: true}
+    )
+
+    onMounted(()=>{
+        const saved = localStorage.getItem("formBuilderState")
+
+        if(saved){
+            fields.value = JSON.parse(saved)
+        }
+    })
 
     // feature: conditional logic building
     //     . field has optional conditioning rules
@@ -69,21 +82,6 @@ export function useFormBuilder(){
         return false;
     }
 
-    // const visibleFields = computed(()=>{
-    //     return fields.value.filter(f=> evaluateCondition(f));
-    // })
-
-    // function validateForm(){
-    //     let isValid = true;
-
-    //     visibleFields.value.forEach(f=>{
-    //         if(f.required && f.value.trim() === ''){
-    //             isValid = false;
-    //         }
-    //     })
-    //     return isValid;
-    // }
-
     function removeField(id){
         fields.value = fields.value.filter(field=> field.id !== id);
     }
@@ -103,27 +101,12 @@ export function useFormBuilder(){
         }
     }
 
-    // const isFormValid = computed(()=>{
-    //     return fields.value.every(field=>{
-    //         if(field.required) return field.value.trim() !== '';
-    //         return true;
-    //     })
-    // })
-
-    // function resetForm(){
-    //     fields.value = [];
-    // }
-
     return{
         fields,
         addField,
         addCondition,
         evaluateCondition,
-        // visibleFields,
-        // validateForm,
         removeField,
         updateField,
-        // isFormValid,
-        // resetForm
     }
 }

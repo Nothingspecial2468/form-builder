@@ -13,9 +13,6 @@ const props = defineProps({
 
 const emit = defineEmits(['update-field'])
 
-// function updateField(id, value){
-//     emit('update-field', id, value)
-// }
 </script>
 
 <template>
