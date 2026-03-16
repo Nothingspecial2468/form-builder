@@ -10,7 +10,12 @@ const{
   evaluateCondition,
   removeField,
   updateField,
+  validateFieldValue
 } = useFormBuilder();
+
+function handlePreviewUpdate(id , value){
+    updateField(id , {value})
+}
 </script>
 
 <template>
@@ -22,24 +27,38 @@ const{
         <p>Click "Add Field" to start building your form.</p>
     </div>
 
-    <button class="primary-btn" @click="addField">Add Field</button>
+    <div class="layout">
+        <div class="editor-panel">
 
-    <FieldEditor v-for="field in fields"
-     :key="field.id"
-      :field="field"
-      :all-fields="fields"
-       @update-field="updateField"
-        @remove-field="removeField"
-        @add-condition="addCondition"
-        >
-      </FieldEditor>
+            <button class="primary-btn" @click="addField">
+            Add Field
+            </button>
 
-    <h2>Form Preview</h2>
-    <FieldPreview :fields="fields"
-      :evaluate-condition="evaluateCondition"
-        @update-field="(id, value)=> updateField(id, {value})">
-    </FieldPreview>
+            <FieldEditor
+            v-for="field in fields"
+            :key="field.id"
+            :field="field"
+            :all-fields="fields"
+            @update-field="updateField"
+            @remove-field="removeField"
+            @add-condition="addCondition"
+            />
 
+        </div>
+
+        <div class="preview-panel">
+
+            <h2>Form Preview</h2>
+
+            <FieldPreview
+            :fields="fields"
+            :evaluate-condition="evaluateCondition"
+            :validate-field-value="validateFieldValue"
+            @update-field="handlePreviewUpdate"
+            />
+
+        </div>
+    </div>
   </div>
 </template>
 
@@ -54,6 +73,27 @@ const{
   align-items: center;
   flex-direction: column;
   border-radius: 8px;
+}
+
+.layout{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 21px;
+    width: 100%;
+}
+
+.editor-panel{
+    overflow-y: auto;
+    text-align: center;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 14px;
+}
+
+.preview-panel{
+    background: #f4f4f4;
+    padding: 14px;
+    border-radius: 5px;
 }
 
 h1{

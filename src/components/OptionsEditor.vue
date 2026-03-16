@@ -11,7 +11,7 @@ const props = defineProps({
 const emit= defineEmits(['update-options'])
 
 function addOption(){
-    emit('update-options', [...props.field.options, ''])
+    emit('update-options', [...(props.field.options || []), ''])
 }
 
 function updateOption(index, value){
@@ -28,7 +28,7 @@ function removeOption(index){
 </script>
 
 <template>
-    <div class="options-section">
+    <div class="options-section" v-if="props.field?.options">
         <p>Options:</p>
         <div v-for="(option , index) in props.field.options"
          :key="index" 

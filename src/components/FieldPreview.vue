@@ -8,6 +8,10 @@ const props = defineProps({
     evaluateCondition:{
         type: Function,
         required: true
+    },
+    validateFieldValue:{
+        type: Function,
+        required: true
     }
 })
 
@@ -31,7 +35,8 @@ const emit = defineEmits(['update-field'])
                     <input
                         type="text"
                         :value="field.value"
-                        @input="$emit('update-field', field.id, $event.target.value)"
+                        @input="e=> emit('update-field', field.id, e.target.value)"
+                        @blur="validateFieldValue(field.id)"
                     >
                 </template>
 
@@ -39,14 +44,16 @@ const emit = defineEmits(['update-field'])
                     <input
                         type="number"
                         :value="field.value"
-                        @input="$emit('update-field', field.id, $event.target.value)"
+                        @input="e=> emit('update-field', field.id, e.target.value)"
+                        @blur="validateFieldValue(field.id)"
                     >
                 </template>
 
                 <template v-else-if="field.type === 'select'">
                     <select
                         :value="field.value"
-                        @change="$emit('update-field', field.id, $event.target.value)"
+                        @change="e=> emit('update-field', field.id, e.target.value)"
+                        @blur="validateFieldValue(field.id)"
                     >
                         <option disabled value="">Select an option</option>
                         <option
@@ -63,9 +70,14 @@ const emit = defineEmits(['update-field'])
                     <input
                         type="checkbox"
                         :checked="field.value"
-                        @change="$emit('update-field', field.id, $event.target.checked)"
+                        @change="e=> emit('update-field', field.id, e.target.checked)"
+                        @blur="validateFieldValue(field.id)"
                     >
                 </template>
+
+                <p v-if="field.error" class="error">
+                    {{ field.error }}
+                </p>
             </div>
         </template>
     </div>
@@ -89,6 +101,11 @@ label{
 input, select{
     padding: 6px 10px;
     border: 1px solid #05101c;
+}
+
+.error{
+    color: red;
+    font-size: 14px;
 }
 
 </style>

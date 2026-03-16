@@ -1,7 +1,21 @@
 import {ref , computed, watch, onMounted} from 'vue';
+import { useFieldValidation } from './useFieldValidation';
 
 export function useFormBuilder(){
     const fields = ref([]);
+    const {validateField, validateForm} = useFieldValidation();
+
+    function getDefaultValidation(){
+        return {
+                minLength: null,
+                maxLength: null,
+                minValue: null,
+                maxValue: null,
+                integerOnly: false,
+                pattern: null,
+                patternErrorMsge: null
+            }
+    }
 
     function addField(){
         const newField = {
@@ -11,7 +25,9 @@ export function useFormBuilder(){
             options : [],
             required : false,
             value : '',
-            condition : null
+            condition : null,
+            error: null,
+            validation: getDefaultValidation()
         }
 
         fields.value.push(newField);
@@ -26,7 +42,11 @@ export function useFormBuilder(){
         const saved = localStorage.getItem("formBuilderState")
 
         if(saved){
-            fields.value = JSON.parse(saved)
+            fields.value = JSON.parse(saved).map(f => ({
+                ...f,
+                validation: f.validation || getDefaultValidation(),
+                error: f.error ?? null
+            }))
         }
     })
 
@@ -72,7 +92,7 @@ export function useFormBuilder(){
         if(!targetField) return false;
 
         // if target field has no value yet = hide the field
-        if(targetField.value === null || targetField.value === '') return false;
+        if(targetField.value === null || targetField.value === undefined) return false;
 
         if(operator === 'equals'){
             return targetField.value === value;
@@ -87,9 +107,16 @@ export function useFormBuilder(){
     }
 
     function updateField(id, updates){
+        console.log("Updates received:", updates)
+
         const field = fields.value.find(field=> field.id === id);
 
         if(!field) return;
+
+        if(updates.validation){
+            Object.assign(field.validation, updates.validation)
+            delete updates.validation
+        }
 
         Object.assign(field, updates);
 
@@ -101,6 +128,32 @@ export function useFormBuilder(){
         }
     }
 
+    function validateFieldValue(fieldId){
+        const field = fields.value.find(f=> f.id === fieldId)
+        if(!field) return false
+
+        const {isValid , error} = validateField(field)
+        field.error = error
+        return isValid
+    }
+
+    function validateFormFields(){
+        const { isValid, errors } = validateForm(fields.value);
+
+        // Update error state for all fields
+        fields.value.forEach(field => {
+            field.error = errors.get(field.id) || null;
+        });
+
+        return { isValid, errors };
+    }
+
+    function clearValidationErrors(){
+        fields.value.forEach(f=> {
+            f.error = null
+        })
+    }
+
     return{
         fields,
         addField,
@@ -108,5 +161,9 @@ export function useFormBuilder(){
         evaluateCondition,
         removeField,
         updateField,
+        validateFieldValue,
+        validateFormFields,
+        clearValidationErrors,
+        getDefaultValidation,
     }
 }

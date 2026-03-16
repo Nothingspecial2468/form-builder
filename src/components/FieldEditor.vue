@@ -27,6 +27,15 @@ function updateCondition(key, value){
         }
     })
 }
+
+function updateValidation(key,value){
+    emit('update-field', props.field.id, {
+        validation:{
+            ...(props.field.validation || {}),
+            [key]:value
+        }
+    })
+}
 </script>
 
 <template>
@@ -51,6 +60,41 @@ function updateCondition(key, value){
         >
             Required
         </label>
+
+        <div class="validation-section">
+            <div v-if="field.type === 'text'">
+                <input 
+                type="number"
+                placeholder="Min Length"
+                :value="field.validation?.minLength"
+                @input="updateValidation('minLength', Number($event.target.value))"
+                >
+
+                <input
+                type="number"
+                placeholder="Max Length"
+                :value="field.validation?.maxLength"
+                @input="updateValidation('maxLength', Number($event.target.value))"
+                >
+
+            </div>
+
+            <div v-if="field.type === 'number'">
+                <input 
+                type="number"
+                placeholder="Min Value"
+                :value="field.validation?.minValue"
+                @input="updateValidation('minValue',Number($event.target.value))"
+                >
+
+                <input
+                type="number"
+                placeholder="Max Value"
+                :value="field.validation?.maxValue"
+                @input="updateValidation('maxValue', Number($event.target.value))"
+                >
+            </div>
+        </div>
 
         <button class="secondary-btn"  @click="$emit('add-condition', field.id)">
             Add Condition
@@ -100,7 +144,7 @@ function updateCondition(key, value){
 
 input , select{
     padding: 5px;
-    font-size: 14px;
+    font-size: 15px;
     border: 1px solid #05101c;
     border-radius: 4px;
     flex-grow: 1;
