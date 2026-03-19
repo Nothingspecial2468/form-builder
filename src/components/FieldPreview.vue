@@ -17,6 +17,10 @@ const props = defineProps({
 
 const emit = defineEmits(['update-field'])
 
+function isVisible(field){
+    return props.evaluateCondition(field)
+}
+
 </script>
 
 <template>
@@ -24,7 +28,7 @@ const emit = defineEmits(['update-field'])
         <template v-for="field in fields" :key="field.id">
             <div
                 class="field-preview"
-                v-if="evaluateCondition(field)"
+                v-if="isVisible(field)"
             >
                 <label>
                     {{ field.label || "Untitled field" }}

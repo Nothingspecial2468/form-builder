@@ -19,11 +19,78 @@ function update(key, value){
     emit('update-field', props.field.id, {[key]: value})
 }
 
-function updateCondition(key, value){
+// function updateCondition(key, value){
+//      emit('update-field', props.field.id, {
+//          condition:{
+//              ...props.field.condition,
+//              [key]: value
+//          }
+//      })
+//  }
+
+function updateConditionRoot(key, value){
+    emit('update-field', props.field.id ,{
+        conditions:{
+            ...props.field.conditions,
+            [key]:value
+        }
+    })
+}
+
+function updateRule(index, key, value){
+    const updatedRules = [...props.field.conditions.rules]
+
+    updatedRules[index] = {
+        ...updatedRules[index],
+        [key]: value
+    }
+
     emit('update-field', props.field.id, {
-        condition:{
-            ...props.field.condition,
-            [key]: value
+        conditions:{
+            ...props.field.conditions,
+            rules: updatedRules
+        }
+    })
+}
+
+function getFieldLabel(fieldId){
+    const field = props.allFields.find(f=> f.id === fieldId)
+    return field?.label || 'Unknown field'
+}
+
+function formatOperator(op){
+    const map = {
+        equals : 'equals',
+        notEquals: 'does not equal',
+        greaterThan: 'is greater than',
+        lessThan: 'is less than',
+        includes: 'includes'
+    }
+    return map[op] || op
+}
+
+function addRule(){
+    const newRule = {
+        targetFieldId: '',
+        operator: 'equals',
+        value: ''
+    }
+
+    emit('update-field', props.field.id, {
+        conditions:{
+            ...props.field.conditions,
+            rules: [...props.field.conditions.rules, newRule]
+        }
+    })
+}
+
+function removeRule(index){
+    const updatedRules = props.field.conditions.rules.filter((_, i)=> i !== index)
+
+    emit('update-field', props.field.id, {
+        conditions:{
+            ...props.field.conditions,
+            rules: updatedRules
         }
     })
 }
@@ -102,23 +169,68 @@ function updateValidation(key,value){
 
         <button class="remove-btn"  @click="$emit('remove-field', field.id)">Remove</button>
 
-        <div v-if="field.condition" class="condition-section">
+        <div v-if="field.conditions" class="condition-section">
             <h3>Visibility Rules</h3>
-            <select :value="field.condition.targetFieldId" 
-            @change="updateCondition('targetFieldId', $event.target.value)">
 
-                <option value="">Select Field</option>
-                <option v-for="f in allFields.filter(f=> f.id !== field.id)"
-                :key="f.id"
-                :value="f.id"
-                >
-                    {{ f.label || 'Untitled field' }}
-                </option>
+            <p class="condition-title">Show this field IF:</p>
+
+            <select :value="field.conditions.logic" 
+            @change="updateConditionRoot('logic', $event.target.value)">
+
+                <option value="AND">AND</option>
+                <option value="OR">OR</option>
             </select>
 
-            <input placeholder="Equals value"
-            :value="field.condition.value"
-            @input="updateCondition('value', $event.target.value)">
+            <div v-for="(rule , index) in field.conditions.rules || []" :key="index" class="rule-box">
+                <div class="rule-row">
+                    <select
+                    :value="rule.targetFieldId"
+                    @change="updateRule(index, 'targetFieldId', $event.target.value)"
+                    >
+                        <option disabled value="">Select Field</option>
+                        <option
+                        v-for="f in allFields.filter(f=> f.id !== field.id)"
+                        :key="f.id"
+                        :value="f.id"
+                        >
+                            {{ f.label || 'Untitled field' }}
+                        </option>
+                    </select>
+
+                    <select 
+                    :value="rule.operator"
+                    @change="updateRule(index, 'operator', $event.target.value)">
+
+                        <option value="equals">Equals</option>
+                        <option value="notEquals">Not Equals</option>
+                        <option value="greaterThan">Greater Than</option>
+                        <option value="lessThan">Less Than</option>
+                        <option value="includes">Includes</option>
+
+                    </select>
+                </div>
+
+                <div class="rule-row">
+
+                    <input placeholder="Value"
+                    :value="rule.value"
+                    @input="updateRule(index , 'value', $event.target.value)">
+
+                    <button @click="removeRule(index)">❌</button>
+
+                    <p class="rule-preview">
+                        {{ getFieldLabel(rule.targetFieldId) }}
+                        {{ formatOperator(rule.operator) }}
+                        "{{ rule.value }}"
+                    </p>
+
+                    <p v-if="!rule.targetFieldId || !rule.value" class="rule-warning">
+                        ⚠️ Incomplete rule
+                    </p>
+                </div>
+            </div>
+
+            <button @click="addRule">➕ Add Rule</button>
         </div>
 
         <OptionsEditor v-if="field.type === 'select'"
@@ -129,17 +241,22 @@ function updateValidation(key,value){
 </template>
 
 <style scoped>
+*{
+    box-sizing: border-box;
+}
+
 .field-editor{
-    padding: 10px;
+    padding: 12px;
     border: 1px solid #0e0202;
-    margin: 10px 0;
+    margin: 12px 0;
     display: flex;
-    align-items: center;
+    /* align-items: center; */
     flex-direction: column;
-    flex-wrap: wrap;
+    /* flex-wrap: wrap; */
     gap: 13px;
-    border-radius: 4px;
+    border-radius: 5px;
     box-shadow: 2px 2px 5px rgba(0,0, 0, 0.6);
+    width: 100%;
 }
 
 input , select{
@@ -147,15 +264,18 @@ input , select{
     font-size: 15px;
     border: 1px solid #05101c;
     border-radius: 4px;
-    flex-grow: 1;
-    gap: 10px;
+    /* flex-grow: 1;
+    gap: 10px; */
+    width: 100%;
 }
 
 .condition-section{
-    padding: 12px;
+    padding: 10px;
     margin-top: 11px;
     background: #f0f0f0;
-    text-align: center;
+    display: flex;
+    flex-direction: column; 
+    gap: 10px;
     border: 1px solid #0e0202;
     border-radius: 4px;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
@@ -167,6 +287,7 @@ button{
     cursor: pointer;
     border-radius: 3px;
     border: 1px solid #05101c;
+    width: fit-content;
 }
 
 button:hover{
@@ -182,5 +303,52 @@ button:hover{
 .remove-btn{
     background: #dc3545;
     color: #fff;
+}
+
+.rule-box{
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.rule-row{
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.rule-row select, 
+.rule-row input{
+    flex: 1;
+    min-width: 110px;
+}
+
+.remove-rule-btn{
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 8px;
+    width: fit-content;
+}
+
+.condition-title{
+    font-weight: bold;
+    
+}
+
+.rule-preview{
+    font-size: 14px;
+    color:#05101c;
+    margin-top: 4px;
+}
+
+.rule-warning{
+    font-weight: bold;
+    color: #dc3545;
 }
 </style>

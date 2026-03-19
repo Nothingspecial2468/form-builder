@@ -25,7 +25,7 @@ export function useFormBuilder(){
             options : [],
             required : false,
             value : '',
-            condition : null,
+            conditions : null,
             error: null,
             validation: getDefaultValidation()
         }
@@ -42,11 +42,23 @@ export function useFormBuilder(){
         const saved = localStorage.getItem("formBuilderState")
 
         if(saved){
-            fields.value = JSON.parse(saved).map(f => ({
-                ...f,
-                validation: f.validation || getDefaultValidation(),
-                error: f.error ?? null
-            }))
+            fields.value = JSON.parse(saved).map(f=> {
+                let conditions = f.conditions || null
+
+                if(!conditions && f.condition){
+                    conditions = {
+                        logic: 'AND',
+                        rules: [f.condition]
+                    }
+                }
+
+                return {
+                    ...f,
+                    conditions,
+                    validation: f.validation || getDefaultValidation(),
+                    error: f.error ?? null
+                }
+            })
         }
     })
 
@@ -70,36 +82,94 @@ export function useFormBuilder(){
 
         if(!field) return;
 
-        field.condition = {
-                targetFieldId : '',
-                operator: 'equals',
-                value: ''
-            }
+        field.conditions = {
+            logic: 'AND', // default
+            rules:[
+                {
+                    targetFieldId : '',
+                    operator: 'equals',
+                    value: ''
+                }
+            ] 
+        }
+    }
+
+    function evaluateRule(rule){
+        const { targetFieldId , operator , value} = rule
+
+        if(!targetFieldId || !operator) return true
+
+        const targetField = fields.value.find(f=> f.id === targetFieldId)
+
+        if(!targetField) return false
+
+        const targetValue = targetField.value
+
+        if(targetValue === null || targetValue === undefined || targetValue === ''){
+            return false
+        }
+
+        switch(operator){
+            case 'equals':
+                return String(targetValue) === String(value)
+            
+            case 'notEquals':
+                return String(targetValue) !== String(value)
+            
+            case 'greaterThan':
+                return Number(targetValue) > Number(value)
+
+            case 'lessThan':
+                return Number(targetValue) < Number(value)
+            
+            case 'includes':
+                return String(targetValue).includes(value)
+
+            default:
+                return false
+        }
     }
 
     function evaluateCondition(field){
-        if(!field.condition) return true;
+        // if(!field.condition) return true;
 
-        const {targetFieldId , operator, value} = field.condition;
+        // const {targetFieldId , operator, value} = field.condition;
 
-        // INcomplete condition = treat as no condition
-        if(!targetFieldId || !operator) return true;
+        // // INcomplete condition = treat as no condition
+        // if(!targetFieldId || !operator) return true;
 
-        const targetField = 
-            fields.value.find(f=> f.id === targetFieldId);
+        // const targetField = 
+        //     fields.value.find(f=> f.id === targetFieldId);
 
-        // if dependency is broken = hide the field
-        if(!targetField) return false;
+        // // if dependency is broken = hide the field
+        // if(!targetField) return false;
 
-        // if target field has no value yet = hide the field
-        if(targetField.value === null || targetField.value === undefined) return false;
+        // // if target field has no value yet = hide the field
+        // if(targetField.value === null || targetField.value === undefined) return false;
 
-        if(operator === 'equals'){
-            return targetField.value === value;
-        }
+        // if(operator === 'equals'){
+        //     return targetField.value === value;
+        // }
 
         // unknown operator = hide the field
-        return false;
+
+        const conditions = field.conditions
+
+        if(!conditions || !conditions.rules?.length) return true
+
+        const { logic = 'AND' , rules } = conditions
+
+        const results  = rules.map(rule=> evaluateRule(rule))
+
+        if(logic === 'AND'){
+            return results.every(Boolean)
+        }
+
+        if(logic === 'OR'){
+            return results.some(Boolean)
+        }
+
+        return true;
     }
 
     function removeField(id){
