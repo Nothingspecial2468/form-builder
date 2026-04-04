@@ -1,5 +1,43 @@
-# Vue 3 + Vite
+# Dynamic Form Builder
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+A Vue 3 based dynamic form builder that allows users to create custom forms with validation and conditional visibility rules.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+---
+
+## 🚀 Features
+
+- 📝 Create dynamic form fields
+- ✅ Field validation (required, min, max)
+- 🔀 Conditional visibility (AND / OR rules)
+- 👀 Live form preview
+- ⚡ Reactive updates with Vue 3
+
+---
+
+
+## 🎯 Key Learnings
+
+- How to manage **dynamic and reactive form state** in Vue 3
+- Understanding **form validation patterns** and handling edge cases
+- Building a **rule-based logic system** for conditional rendering
+- Importance of **clean data structures** for scalability
+- Debugging complex UI and logic interactions step by step
+- Recognizing when to **simplify** instead of overcomplicating logic
+
+---
+
+
+## 🛠️ Tech Stack
+
+- **Frontend:** Vue 3  
+- **Language:** JavaScript  
+- **Styling:** CSS  
+
+---
+
+## 📦 Installation & Setup
+
+- git clone <your-repo-link>
+- cd <project-folder>
+- npm install
+- npm run dev
